@@ -1,4 +1,5 @@
-# 🎥 Meetify – Real-Time Video Conferencing Platform
+# 🎥 Meetify – Real-Time Video Conferencing Platform 
+Check LIVE project here: https://meetify-web.netlify.app/
 
 A full-stack video conferencing application built using **React, Node.js, Express, Socket.IO, and WebRTC**, enabling users to create or join virtual meeting rooms with seamless real-time communication.
 
@@ -8,7 +9,7 @@ Meetify provides secure peer-to-peer video and audio communication with instant 
 
 ## 🚀 Live Demo
 
-🌐 **Frontend:** *(Add your Netlify URL here)*
+🌐 **Frontend:** https://meetify-web.netlify.app/
 
 ⚙️ **Backend API:** https://meetify-a773.onrender.com
 
