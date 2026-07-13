@@ -1,7 +1,7 @@
 import { useEffect, useRef } from "react";
 import { io } from "socket.io-client";
 
-const SERVER_URL = "http://localhost:8000";
+const SERVER_URL = process.env.REACT_APP_API_URL;
 
 export default function useSocket() {
     const socketRef = useRef(null);
