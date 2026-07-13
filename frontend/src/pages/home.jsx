@@ -7,7 +7,6 @@ import {
     Typography, 
     AppBar, 
     Toolbar,
-    Paper,
     CssBaseline,
     Dialog,
     DialogTitle,

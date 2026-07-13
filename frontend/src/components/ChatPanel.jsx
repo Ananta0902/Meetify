@@ -1,5 +1,5 @@
 import React, { useEffect, useRef } from "react";
-import { IconButton, TextField, Button, Box } from "@mui/material";
+import { IconButton, TextField, Button } from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
 import SendIcon from "@mui/icons-material/Send";
 import styles from "../styles/VideoComponent.module.css";

@@ -60,7 +60,7 @@ export default function Lobby() {
 
     const [cameraOn, setCameraOn] = useState(true);
     const [micOn, setMicOn] = useState(true);
-    const [loading, setLoading] = useState(true);
+    const [, setLoading] = useState(true);
 
     useEffect(() => {
         let isMounted = true;
@@ -93,7 +93,8 @@ export default function Lobby() {
                 streamRef.current.getTracks().forEach(track => track.stop());
             }
         };
-    }, []);
+       // eslint-disable-next-line react-hooks/exhaustive-deps
+}, []);
 
     const toggleCamera = () => {
         setCameraOn(prev => {

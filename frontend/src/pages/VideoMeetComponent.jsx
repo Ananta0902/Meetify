@@ -85,7 +85,7 @@ function useAudioSpeakerDetector(stream, onSpeakingChange, isMuted) {
             if (speakingTimeout) clearTimeout(speakingTimeout);
             audioContext.close();
         };
-    }, [stream, isMuted]);
+   }, [stream, isMuted, onSpeakingChange]);
 }
 
 function IndividualVideoCard({ stream, displayName, isLocal, isMutedBySync }) {
@@ -315,6 +315,7 @@ export default function VideoMeetComponent() {
         initConference();
 
         return () => {};
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [roomId, username, socket]);
 
     const sendMessage = () => {
