@@ -275,8 +275,8 @@ export default function VideoMeetComponent() {
                 joinRoom(roomId, username);
             }
         };
-
-        initConference();
+    initConference();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [roomId, username, socket]);
 
     const sendMessage = () => {

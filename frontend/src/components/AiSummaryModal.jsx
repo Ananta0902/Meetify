@@ -10,6 +10,7 @@ export default function AISummaryModal({ isOpen, onClose, chatHistory, activePar
       setSummary(''); // Clear old cached summary immediately
       generateSummary();
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isOpen]); // Triggers whenever the modal opens
 
  const generateSummary = async () => {
