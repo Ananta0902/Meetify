@@ -1,0 +1,140 @@
+/* Container layout to line them up cleanly */
+.navlink {
+    display: flex;
+    align-items: center;
+    gap: 16px; /* Spacing between the buttons */
+}
+
+/* Core shared reset settings for both buttons */
+.navBtnPrimary, .navBtnSecondary {
+    padding: 8px 20px;
+    border-radius: 8px;
+    font-size: 0.95rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+    font-family: inherit;
+}
+
+/* THE PRIMARY BLUE BUTTON (Sign In) */
+.navBtnPrimary {
+    background-color: #0e71eb; /* Zoom Blue */
+    color: #ffffff;
+    border: 1px solid transparent;
+}
+
+.navBtnPrimary:hover {
+    background-color: #0b5bbf; /* Darker Blue on hover */
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(14, 113, 235, 0.3); /* Adds a subtle blue glow */
+}
+
+.heroSubtitleSmall {
+    font-size: 1.2rem;      /* Makes it slightly smaller than the base font size */
+    font-weight: 500;        /* Gives it a clean, medium weight so it's readable */
+    color: #cbd5e1;          /* Soft, premium light-gray color that suits the dark theme */
+    display: block;          /* Forces it onto its own line neatly */
+    margin-top: 12px;        /* Spacing below your main "Connect" headline */
+    margin-bottom: 8px;      /* Spacing above the next paragraph block */
+    line-height: 1.9;        /* Adds breathing room to the text */
+}
+/* THE SECONDARY OUTLINE BUTTON (Join as Guest) */
+.navBtnSecondary {
+    background-color: transparent;
+    color: #3b82f6; /* Bright crisp blue text */
+    border: 1px solid rgba(59, 130, 246, 0.4); /* Thin subtle blue border */
+}
+
+.navBtnSecondary:hover {
+    background-color: rgba(59, 130, 246, 0.08); /* Faint ambient tint on hover */
+    border-color: #3b82f6; /* Sharper border line */
+    color: #ffffff; /* Turns white for better contrast */
+}
+.landingPage-container{
+  height: 100vh;
+  width: 100vw;
+  background-repeat: no-repeat;
+  background-image: url("/public/background.png");
+  background-size: cover;
+  color: white;
+}
+.landingPage-container nav{
+  color: white;
+  padding-inline: 1.2rem;
+  padding-block: 1.6rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.landingPage-container nav h2{
+  font-size: 1.8rem;
+  font-weight: 500;
+}
+.landingPage-container nav .navlink{
+display: flex;
+gap:1.6rem;
+font-weight: 400;
+cursor: pointer;
+}
+.landingMainContainer{
+  display: flex;
+  justify-content: space-between;
+  padding-inline: 3rem;
+  height: 80vh;
+  align-items: center;
+}
+.landingMainContainer> div:nth-child(1){
+    font-size: 2.2rem;
+}
+.landingMainContainer> div:nth-child(1) div[role='button']{
+  background: #d97500 ;
+  width: fit-content;
+  padding :  0.6rem;
+  border-radius:20px;
+  margin-top: 1.9rem;
+}
+.landingMainContainer> div:nth-child(1) div[role='button'] a{
+    text-decoration: none;
+    color: white;
+    font-size: 1.7rem;
+}
+.landingMainContainer> div:nth-child(2) img{
+  height: 70vh;
+  width: auto;
+}
+/* //home ka navbar */
+.navBar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-inline: 20px;
+  text-align: center;
+}
+.meetContainer {
+  display: flex;
+  padding-inline: 20px;
+  height: 80vh;
+  gap: 10vw;
+  justify-content: center;
+}
+
+
+
+.leftPanel {
+  height: 100%;
+  display: flex;
+  align-items: center;
+
+}
+
+.rightPanel {
+  display: flex;
+  align-items: center;
+}
+
+.rightPanel > img {
+  width: 30vw;
+  height: auto;
+  border-radius: 20px;
+}

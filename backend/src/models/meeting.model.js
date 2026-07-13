@@ -1,0 +1,10 @@
+import mongoose, { Schema } from "mongoose"
+
+const meetingSchema=new Schema({
+    user_id:{type:String},
+    meeting_code:{type:String,required:true},
+    date:{type:String,required:true,default:Date.now}
+})
+
+const Meeting=mongoose.model("Meeting",meetingSchema);
+export {Meeting};
