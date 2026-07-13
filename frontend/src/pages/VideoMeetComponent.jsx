@@ -1,6 +1,7 @@
 import React, { useEffect, useState, useRef } from "react";
 import { useNavigate } from "react-router-dom";
-
+import AIAssistantPanel from '../components/AiAssistantPanel';
+import AISummaryModal from '../components/AiSummaryModal';
 import Controls from "../components/Controls";
 import ChatPanel from "../components/ChatPanel";
 
@@ -144,11 +145,16 @@ function IndividualVideoCard({ stream, displayName, isLocal, isMutedBySync }) {
 }
 
 export default function VideoMeetComponent() {
+    const [isCopilotOpen, setIsCopilotOpen] = useState(false);
+    const [isSummaryOpen, setIsSummaryOpen] = useState(false);
     const navigate = useNavigate();
     const guest = JSON.parse(sessionStorage.getItem("guest"));
     const hasJoinedRef = useRef(false);
 
     const [isMobile, setIsMobile] = useState(window.innerWidth <= 768);
+
+    // Globalized state tracking for the AI private side conversations
+    const [copilotMessages, setCopilotMessages] = useState([]);
 
     useEffect(() => {
         const handleResize = () => setIsMobile(window.innerWidth <= 768);
@@ -161,41 +167,14 @@ export default function VideoMeetComponent() {
 
     const getAuthenticatedUsername = () => {
         const sessionGuest = JSON.parse(sessionStorage.getItem("guest") || "null");
-        if (sessionGuest?.displayName && sessionGuest.displayName !== "Authenticated User" && sessionGuest.displayName !== "User") {
-            return sessionGuest.displayName;
-        }
-        if (sessionGuest?.username && sessionGuest.username !== "Authenticated User" && sessionGuest.username !== "User") {
-            return sessionGuest.username;
-        }
+        if (sessionGuest?.displayName && sessionGuest.displayName !== "Authenticated User" && sessionGuest.displayName !== "User") return sessionGuest.displayName;
+        if (sessionGuest?.username && sessionGuest.username !== "Authenticated User" && sessionGuest.username !== "User") return sessionGuest.username;
 
         const directUser = localStorage.getItem("username") || sessionStorage.getItem("username");
         const directName = localStorage.getItem("name") || sessionStorage.getItem("name");
         
         if (directUser && directUser !== "User" && directUser !== "Authenticated User") return directUser;
         if (directName && directName !== "User" && directName !== "Authenticated User") return directName;
-
-        const structuralKeys = ["user", "profile", "auth", "account", "credentials", "supabase.auth.token", "firebase:authUser"];
-        for (const key of structuralKeys) {
-            try {
-                const rawItem = localStorage.getItem(key) || sessionStorage.getItem(key);
-                if (rawItem) {
-                    const parsed = JSON.parse(rawItem);
-                    const targetMatch = parsed.username || parsed.name || parsed.displayName || parsed.fullName || 
-                                        parsed.user?.username || parsed.user?.name || parsed.user?.user_metadata?.full_name ||
-                                        parsed.current_user?.name || parsed.current_user?.username;
-                    if (targetMatch && targetMatch !== "User" && targetMatch !== "Authenticated User") return targetMatch;
-                }
-            } catch (e) {}
-        }
-
-        const urlParams = new URLSearchParams(window.location.search);
-        const urlName = urlParams.get("name");
-        if (urlName && urlName !== "undefined" && urlName !== "null" && urlName !== "User" && urlName !== "Authenticated User") {
-            return decodeURIComponent(urlName);
-        }
-
-        const directEmail = localStorage.getItem("email") || sessionStorage.getItem("email") || sessionGuest?.email || sessionGuest?.user?.email;
-        if (directEmail && directEmail.includes("@")) return directEmail.split("@")[0];
 
         return "User";
     };
@@ -247,15 +226,11 @@ export default function VideoMeetComponent() {
 
     useEffect(() => {
         if (!socket) return;
-        
         const handleMicStatus = ({ socketId, isMuted }) => {
             setMicStatuses(prev => ({ ...prev, [socketId]: isMuted }));
         };
-
         socket.on("user-mic-status", handleMicStatus);
-        return () => {
-            socket.off("user-mic-status", handleMicStatus);
-        };
+        return () => { socket.off("user-mic-status", handleMicStatus); };
     }, [socket]);
 
     useEffect(() => {
@@ -264,14 +239,10 @@ export default function VideoMeetComponent() {
         onRoomUsers((users) => {
             setUsernameMap(prev => {
                 const updated = { ...prev };
-                users.forEach(user => {
-                    updated[user.socketId] = user.username;
-                });
+                users.forEach(user => { updated[user.socketId] = user.username; });
                 return updated;
             });
-            users.forEach(user => {
-                createOffer(user.socketId);
-            });
+            users.forEach(user => { createOffer(user.socketId); });
         });
 
         onUserJoined((user) => {
@@ -281,9 +252,7 @@ export default function VideoMeetComponent() {
         onSignal((data) => {
             const fromId = data?.fromId || data;
             const signal = data?.signal || data;
-            if (fromId && signal) {
-                handleSignal(fromId, signal);
-            }
+            if (fromId && signal) handleSignal(fromId, signal);
         });
 
         onUserLeft((socketId) => {
@@ -297,15 +266,10 @@ export default function VideoMeetComponent() {
             if (!showChat) setUnreadMessages(prev => prev + 1);
         });
 
-        onChatHistory((history) => {
-            setMessages(history);
-        });
+        onChatHistory((history) => { setMessages(history); });
 
         const initConference = async () => {
-            const stream = await initializeMedia(
-                guest?.cameraOn ?? true,
-                guest?.micOn ?? true
-            );
+            const stream = await initializeMedia(guest?.cameraOn ?? true, guest?.micOn ?? true);
             if (stream && !hasJoinedRef.current) {
                 hasJoinedRef.current = true;
                 joinRoom(roomId, username);
@@ -313,9 +277,6 @@ export default function VideoMeetComponent() {
         };
 
         initConference();
-
-        return () => {};
-        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [roomId, username, socket]);
 
     const sendMessage = () => {
@@ -345,54 +306,82 @@ export default function VideoMeetComponent() {
         cardFlexBasis = totalVideos === 1 ? '70%' : totalVideos === 2 ? '45%' : '30%';
     }
 
+    const formattedChatHistory = messages.map(m => ({
+        username: m.sender || "Unknown",
+        text: m.data || ""
+    }));
+
     return (
         <div className={styles.meetContainer} style={{ display: 'flex', flexDirection: 'column', height: '100vh', backgroundColor: '#16161a', overflow: 'hidden' }}>
-            <div style={{ 
-                flex: 1, 
-                display: 'flex', 
-                flexDirection: isMobile ? 'column-reverse' : 'row', 
-                width: '100%', 
-                overflow: 'hidden', 
-                position: 'relative' 
-            }}>
-                <div style={{
-                    flex: 1, 
-                    display: 'flex', 
-                    flexDirection: 'row', 
-                    flexWrap: 'wrap', 
-                    gap: isMobile ? '12px' : '24px', 
-                    padding: isMobile ? '12px' : '32px', 
-                    alignItems: 'center', 
-                    justifyContent: 'center', 
-                    overflowY: 'auto', 
-                    height: '100%'
-                }}>
+            <div style={{ flex: 1, display: 'flex', flexDirection: isMobile ? 'column-reverse' : 'row', width: '100%', overflow: 'hidden', position: 'relative' }}>
+                
+                {/* Center Camera Grid */}
+                <div style={{ flex: 1, display: 'flex', flexDirection: 'row', flexWrap: 'wrap', gap: isMobile ? '12px' : '24px', padding: isMobile ? '12px' : '32px', alignItems: 'center', justifyContent: 'center', overflowY: 'auto', height: '100%' }}>
                     {localStream && (
-                        <div style={{ 
-                            flexBasis: cardFlexBasis, 
-                            minWidth: isMobile ? '140px' : '280px', 
-                            maxWidth: totalVideos === 1 ? (isMobile ? '100%' : '850px') : '640px', 
-                            aspectRatio: '16 / 9' 
-                        }}>
+                        <div style={{ flexBasis: cardFlexBasis, minWidth: isMobile ? '140px' : '280px', maxWidth: totalVideos === 1 ? (isMobile ? '100%' : '850px') : '640px', aspectRatio: '16 / 9' }}>
                             <IndividualVideoCard stream={localStream} displayName={username} isLocal={true} isMutedBySync={!audio} />
                         </div>
                     )}
                     {namedRemoteStreams.map((user) => (
-                        <div key={user.socketId} style={{ 
-                            flexBasis: cardFlexBasis, 
-                            minWidth: isMobile ? '140px' : '280px', 
-                            maxWidth: '640px', 
-                            aspectRatio: '16 / 9' 
-                        }}>
+                        <div key={user.socketId} style={{ flexBasis: cardFlexBasis, minWidth: isMobile ? '140px' : '280px', maxWidth: '640px', aspectRatio: '16 / 9' }}>
                             <IndividualVideoCard stream={user.stream} displayName={user.name} isLocal={false} isMutedBySync={!!micStatuses[user.socketId]} />
                         </div>
                     ))}
                 </div>
                 
                 <ChatPanel open={showChat} messages={messages} message={message} setMessage={setMessage} sendMessage={sendMessage} onClose={() => setShowChat(false)} />
+                
+                {/* AI Copilot Side Panel Component */}
+                <AIAssistantPanel 
+                    isOpen={isCopilotOpen} 
+                    onClose={() => setIsCopilotOpen(false)} 
+                    chatHistory={formattedChatHistory}
+                    copilotMessages={copilotMessages}
+                    setCopilotMessages={setCopilotMessages}
+                />
             </div>
+      
             
-            <Controls video={video} audio={audio} screen={screen} screenAvailable={!!navigator.mediaDevices.getDisplayMedia && !isMobile} unreadMessages={unreadMessages} onToggleVideo={toggleVideo} onToggleAudio={toggleAudio} onToggleScreen={toggleScreenShare} onToggleChat={() => { setShowChat(p => !p); setUnreadMessages(0); }} onLeave={handleLeave} />
+            <Controls video={video} audio={audio} screen={screen} screenAvailable={!!navigator.mediaDevices.getDisplayMedia && !isMobile} unreadMessages={unreadMessages} onToggleVideo={toggleVideo} onToggleAudio={toggleAudio} onToggleScreen={toggleScreenShare} onToggleChat={() => { setShowChat(p => !p); setIsCopilotOpen(false); setUnreadMessages(0); }} onLeave={handleLeave} />
+            
+      
+            {/* Action Bar Interface */}
+            <div style={{ display: 'flex', gap: '12px', justifyContent: 'center', padding: '12px 16px', backgroundColor: '#1c1c24', borderTop: '1px solid rgba(255, 255, 255, 0.06)' }}>
+                <button 
+                    onClick={() => {
+                        setIsCopilotOpen(!isCopilotOpen);
+                        if (showChat) setShowChat(false);
+                    }} 
+                    style={{ background: isCopilotOpen ? '#2563eb' : '#27272a', color: '#ffffff', border: 'none', padding: '8px 16px', borderRadius: '8px', fontSize: '0.85rem', fontWeight: 600, cursor: 'pointer', transition: 'all 0.2s' }}
+                >
+                    {isCopilotOpen ? '🤖 Close Copilot' : '🤖 Open AI Copilot'}
+                </button>
+                <button 
+                    onClick={() => setIsSummaryOpen(true)} 
+                    style={{ background: '#065f46', color: '#ffffff', border: 'none', padding: '8px 16px', borderRadius: '8px', fontSize: '0.85rem', fontWeight: 600, cursor: 'pointer', transition: 'all 0.2s' }}
+                >
+                    📊 Generate AI Summary
+                </button>
+            </div>
+
+            {/* Unified Summary Dialog Modal */}
+          <AISummaryModal 
+    isOpen={isSummaryOpen} 
+    onClose={() => setIsSummaryOpen(false)} 
+    // 1. Send the merged live chat transcript data
+    chatHistory={[
+        ...formattedChatHistory,
+        ...copilotMessages.filter(m => m.text).map(m => ({
+            username: m.role === 'user' ? 'You (To Copilot)' : 'Copilot Response',
+            text: m.text
+        }))
+    ]} 
+    // 2. Send the actual names of everyone currently connected to the call
+    activeParticipants={[
+        username, // You
+        ...Object.values(usernameMap) // All remote peers currently connected
+    ]}
+/>
         </div>
     );
 }
