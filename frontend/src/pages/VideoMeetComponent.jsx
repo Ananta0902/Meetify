@@ -4,7 +4,7 @@ import AIAssistantPanel from '../components/AiAssistantPanel';
 import AISummaryModal from '../components/AiSummaryModal';
 import Controls from "../components/Controls";
 import ChatPanel from "../components/ChatPanel";
-
+import VideoPlayer from "../components/VideoPlayer";
 import useSocket from "../hooks/useSocket";
 import useWebRTC from "../hooks/useWebRTC";
 
@@ -89,6 +89,60 @@ function useAudioSpeakerDetector(stream, onSpeakingChange, isMuted) {
    }, [stream, isMuted, onSpeakingChange]);
 }
 
+// function IndividualVideoCard({ stream, displayName, isLocal, isMutedBySync }) {
+//     const [isSpeaking, setIsSpeaking] = useState(false);
+
+//     useAudioSpeakerDetector(stream, (speakingState) => {
+//         setIsSpeaking(speakingState);
+//     }, isMutedBySync);
+
+//     return (
+//         <div style={{
+//             position: 'relative',
+//             borderRadius: '12px',
+//             overflow: 'hidden',
+//             backgroundColor: '#1c1c24',
+//             border: isSpeaking ? '3px solid #10b981' : '3px solid rgba(255, 255, 255, 0.08)',
+//             boxShadow: isSpeaking ? '0px 0px 24px rgba(16, 185, 129, 0.45)' : 'none',
+//             transition: 'border 0.2s ease, box-shadow 0.2s ease',
+//             width: '100%',
+//             height: '100%'
+//         }}>
+//             <video
+//                 ref={(ref) => {
+//                     if (ref && stream) ref.srcObject = stream;
+//                 }}
+//                 autoPlay
+//                 playsInline
+//                 muted={isLocal} 
+//                 style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+//             />
+            
+//             <div style={{
+//                 position: 'absolute',
+//                 bottom: '12px',
+//                 left: '12px',
+//                 backgroundColor: 'rgba(0, 0, 0, 0.65)',
+//                 color: '#ffffff',
+//                 padding: '6px 12px',
+//                 borderRadius: '6px',
+//                 fontSize: '0.8rem',
+//                 fontWeight: 500,
+//                 backdropFilter: 'blur(4px)',
+//                 display: 'flex',
+//                 alignItems: 'center',
+//                 gap: '8px'
+//             }}>
+//                 <span>{displayName} {isLocal && "(You)"}</span>
+//                 {isMutedBySync ? (
+//                     <MicOffIcon style={{ color: '#ea4335', fontSize: '1rem' }} />
+//                 ) : (
+//                     <MicIcon style={{ color: '#10b981', fontSize: '1rem' }} />
+//                 )}
+//             </div>
+//         </div>
+//     );
+// }
 function IndividualVideoCard({ stream, displayName, isLocal, isMutedBySync }) {
     const [isSpeaking, setIsSpeaking] = useState(false);
 
@@ -108,14 +162,12 @@ function IndividualVideoCard({ stream, displayName, isLocal, isMutedBySync }) {
             width: '100%',
             height: '100%'
         }}>
-            <video
-                ref={(ref) => {
-                    if (ref && stream) ref.srcObject = stream;
-                }}
-                autoPlay
-                playsInline
-                muted={isLocal} 
-                style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+            {/* REPLACE RAW <video> WITH YOUR MEMOIZED <VideoPlayer /> */}
+            <VideoPlayer 
+                stream={stream} 
+                isMuted={isLocal} 
+                className="w-full h-full object-cover" // If using Tailwind or standard CSS rules
+                style={{ width: '100%', height: '100%', objectFit: 'cover' }} 
             />
             
             <div style={{
@@ -185,7 +237,7 @@ export default function VideoMeetComponent() {
     const [micStatuses, setMicStatuses] = useState({});
 
     const [messages, setMessages] = useState([]);
-    const [message, setMessage] = useState("");
+    // const [message, setMessage] = useState("");
     const [showChat, setShowChat] = useState(false);
     const [unreadMessages, setUnreadMessages] = useState(0);
 
@@ -279,11 +331,14 @@ export default function VideoMeetComponent() {
   // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [roomId, username, socket]);
 
-    const sendMessage = () => {
-        if (!message.trim()) return;
-        sendChat(message, username);
-        setMessage("");
-    };
+    // const sendMessage = () => {
+    //     if (!message.trim()) return;
+    //     sendChat(message, username);
+    //     setMessage("");
+    // };
+    const sendMessage = (msgText) => {
+    sendChat(msgText, username);
+};
 
     const handleLeave = () => {
         leaveMeeting();
@@ -329,7 +384,13 @@ export default function VideoMeetComponent() {
                     ))}
                 </div>
                 
-                <ChatPanel open={showChat} messages={messages} message={message} setMessage={setMessage} sendMessage={sendMessage} onClose={() => setShowChat(false)} />
+                {/* <ChatPanel open={showChat} messages={messages} message={message} setMessage={setMessage} sendMessage={sendMessage} onClose={() => setShowChat(false)} /> */}
+                <ChatPanel 
+    open={showChat} 
+    messages={messages} 
+    sendMessage={sendMessage} 
+    onClose={() => setShowChat(false)} 
+/>
                 
                 {/* AI Copilot Side Panel Component */}
                 <AIAssistantPanel 

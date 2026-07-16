@@ -1,24 +1,31 @@
-import React, { useEffect, useRef } from "react";
+import React, { useEffect, useRef, useState } from "react"; // Added useState
 import { IconButton, TextField, Button } from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
 import SendIcon from "@mui/icons-material/Send";
 import styles from "../styles/VideoComponent.module.css";
 
-export default function ChatPanel({
+// Use React.memo so ChatPanel doesn't re-render unless messages list actually changes!
+const ChatPanel = React.memo(function ChatPanel({
     open,
     messages,
-    message,
-    setMessage,
-    sendMessage,
+    sendMessage, // sendMessage now expects a text string argument
     onClose
 }) {
     const bottomRef = useRef(null);
+    // Keep typing input state local to ChatPanel!
+    const [localMessage, setLocalMessage] = useState(""); 
 
     useEffect(() => {
         bottomRef.current?.scrollIntoView({ behavior: "smooth" });
     }, [messages, open]);
 
     if (!open) return null;
+
+    const handleSend = () => {
+        if (!localMessage.trim()) return;
+        sendMessage(localMessage); // Send local input value up to backend
+        setLocalMessage(""); // Clear local input field
+    };
 
     return (
         <div className={styles.chatPanel}>
@@ -50,11 +57,11 @@ export default function ChatPanel({
                     fullWidth
                     size="small"
                     placeholder="Type message here..."
-                    value={message}
-                    onChange={(e) => setMessage(e.target.value)}
+                    value={localMessage} // Bound to local state instead of parent
+                    onChange={(e) => setLocalMessage(e.target.value)}
                     onKeyDown={(e) => {
                         if (e.key === "Enter") {
-                            sendMessage();
+                            handleSend();
                         }
                     }}
                     sx={{
@@ -70,7 +77,7 @@ export default function ChatPanel({
                 />
                 <Button
                     variant="contained"
-                    onClick={sendMessage}
+                    onClick={handleSend}
                     sx={{
                         minWidth: "50px",
                         height: "40px",
@@ -84,4 +91,6 @@ export default function ChatPanel({
             </div>
         </div>
     );
-}
+});
+
+export default ChatPanel;
