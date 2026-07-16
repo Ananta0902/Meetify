@@ -136,15 +136,13 @@ REACT_APP_API_URL=https://meetify-a773.onrender.com
 ---
 
 ## 🌟 Future Improvements
-
-* Meeting recording
-* Waiting room
-* Host controls
-* Raise hand feature
-* AI meeting summaries
-* Meeting scheduling
-
----
+-  Meeting Recordings.
+-  Waiting Room for host approval before joining.
+-  Host Controls (mute participants, remove users, lock meeting).
+- ✋ Raise Hand feature for organized discussions.
+- 📅 Meeting Scheduling with calendar integration and email reminders.
+- 💬 In-meeting Chat and File Sharing.
+- Future versions will migrate to an **SFU (Selective Forwarding Unit)** architecture enabling support for dozens or even hundreds of participants while improving scalability and performance.
 
 
-If you found this project useful, consider giving it a ⭐ on GitHub.
+If you found this project useful, consider giving it a ⭐ on GitHub. :)
