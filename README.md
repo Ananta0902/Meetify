@@ -141,7 +141,6 @@ REACT_APP_API_URL=https://meetify-a773.onrender.com
 -  Host Controls (mute participants, remove users, lock meeting).
 - ✋ Raise Hand feature for organized discussions.
 - 📅 Meeting Scheduling with calendar integration and email reminders.
-- 💬 In-meeting Chat and File Sharing.
 - Future versions will migrate to an **SFU (Selective Forwarding Unit)** architecture enabling support for dozens or even hundreds of participants while improving scalability and performance.
 
 
